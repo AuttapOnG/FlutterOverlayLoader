@@ -1,15 +1,18 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 const defaultValue = 56.0;
 
 class Loader extends StatelessWidget {
   static OverlayEntry? _currentLoader;
+
   Loader._(this._progressIndicator, this._themeData);
+
   final Widget? _progressIndicator;
   final ThemeData? _themeData;
 
   static OverlayState? _overlayState;
+
+  static bool isShowing = false;
 
   static void show(BuildContext context,
       {Widget? progressIndicator,
@@ -34,6 +37,7 @@ class Loader extends StatelessWidget {
 
       /// isBottomBarOverlay default true. If you don't want to overlap bottomAppbar then do false.
       }) {
+    isShowing = true;
     _overlayState = Overlay.of(context);
     if (_currentLoader == null) {
       ///Create current Loader Entry
@@ -59,14 +63,12 @@ class Loader extends StatelessWidget {
           ],
         );
       });
-      try {
         WidgetsBinding.instance?.addPostFrameCallback(
           (_) => {
-            if (_currentLoader != null)
+            if (isShowing)
               _overlayState?.insertAll([_currentLoader!])
           },
         );
-      } catch (e) {}
     }
   }
 
@@ -75,9 +77,10 @@ class Loader extends StatelessWidget {
       try {
         _currentLoader?.remove();
       } catch (e) {
-        print(e.toString());
+        // debugPrint(e.toString());
       } finally {
         _currentLoader = null;
+        isShowing = false;
       }
     }
   }
